@@ -15,13 +15,10 @@
         input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; background-color: #1a2a6c; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-top: 20px; transition: 0.3s; }
         button:hover { background-color: #b21f1f; }
-        
         .notice { margin-top: 20px; padding: 12px; background-color: #fff9c4; border-left: 5px solid #fbc02d; color: #5d4037; font-size: 14px; line-height: 1.5; border-radius: 4px; }
         #result { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; line-height: 1.8; }
         .pass { background-color: #e8f5e9; border: 1px solid #4caf50; color: #2e7d32; }
         .warning { color: #e74c3c; font-weight: bold; }
-        
-        /* 底部註解樣式 */
         .footer { font-size: 12px; color: #999; margin-top: 10px; text-align: center; }
     </style>
 </head>
@@ -68,26 +65,30 @@
 
 <script>
     function calculatePhysics() {
+        // 小考取最高5次
         let quizInputs = document.querySelectorAll('.quiz');
         let quizScores = Array.from(quizInputs)
                               .map(input => parseFloat(input.value) || 0)
                               .sort((a, b) => b - a);
-
         let topQuizzes = quizScores.slice(0, 5);
         let quizAvg = topQuizzes.reduce((a, b) => a + b, 0) / 5;
 
+        // 作業平均
         let hw1 = parseFloat(document.getElementById('hw1').value) || 0;
         let hw2 = parseFloat(document.getElementById('hw2').value) || 0;
         let hwAvg = (hw1 + hw2) / 2;
 
+        // 平時成績 (小考與作業平均)
         let dailyScore = (quizAvg + hwAvg) / 2;
 
+        // 定期評量 (兩次段考平均)
         let ex1 = parseFloat(document.getElementById('exam1').value) || 0;
         let ex2 = parseFloat(document.getElementById('exam2').value) || 0;
         let examAvg = (ex1 + ex2) / 2;
 
-        // 公式：300 - 平時成績×0.2 - 定期評量×0.2
-        let target = 300 - (dailyScore * 0.2) - (examAvg * 0.2);
+        // 新公式：300 - (平時成績 × 5) - (定期評量 × 5)
+        // 這通常代表平時佔 20%，段考佔 20%，期末佔 60% 的邏輯
+        let target = 300 - (dailyScore * 5) - (examAvg * 5);
         
         let resultDiv = document.getElementById('result');
         resultDiv.style.display = 'block';
@@ -96,13 +97,13 @@
             ● 小考平均 (取最高5次): ${quizAvg.toFixed(1)} 分<br>
             ● 作業平均: ${hwAvg.toFixed(1)} 分<br>
             ● 平時成績總計: ${dailyScore.toFixed(1)} 分<br>
-            ● 前兩次段考平均: ${examAvg.toFixed(1)} 分<br>
+            ● 定期評量平均: ${examAvg.toFixed(1)} 分<br>
             <hr>
             <strong>🎯 期末考需要考到：<span class="warning">${target.toFixed(1)}</span> 分才能 Pass</strong>
         `;
         
         if (target > 100) {
-            message += `<br><span class="warning">⚠️ 提醒：目標超過 100 分，請務必與老師討論學習狀況！</span>`;
+            message += `<br><span class="warning">⚠️ 提醒：計算結果超過 100 分，請務必與老師討論！</span>`;
         } else if (target <= 0) {
             message += `<br><span style="color:green">✨ 恭喜：你目前的成績非常穩健！</span>`;
         }
