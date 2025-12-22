@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物理成績試算器</title>
+    <style>
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 500px; width: 100%; margin-bottom: 20px; }
+        h2 { text-align: center; color: #1a2a6c; margin-bottom: 25px; }
+        .section-title { border-left: 4px solid #f39c12; padding-left: 10px; margin: 20px 0 10px; font-weight: bold; color: #2c3e50; }
+        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .input-box { margin-bottom: 10px; }
+        label { display: block; font-size: 14px; margin-bottom: 5px; color: #666; }
+        input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #1a2a6c; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        button:hover { background-color: #b21f1f; }
+        
+        .notice { margin-top: 20px; padding: 12px; background-color: #fff9c4; border-left: 5px solid #fbc02d; color: #5d4037; font-size: 14px; line-height: 1.5; border-radius: 4px; }
+        #result { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; line-height: 1.8; }
+        .pass { background-color: #e8f5e9; border: 1px solid #4caf50; color: #2e7d32; }
+        .warning { color: #e74c3c; font-weight: bold; }
+        
+        /* 底部註解樣式 */
+        .footer { font-size: 12px; color: #999; margin-top: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>物理成績試算器</h2>
+    
+    <div class="section-title">小考成績 (6次取最高5次，未考以0分計)</div>
+    <div class="input-group">
+        <div class="input-box"><label>小考 1</label><input type="number" class="quiz" value="0"></div>
+        <div class="input-box"><label>小考 2</label><input type="number" class="quiz" value="0"></div>
+        <div class="input-box"><label>小考 3</label><input type="number" class="quiz" value="0"></div>
+        <div class="input-box"><label>小考 4</label><input type="number" class="quiz" value="0"></div>
+        <div class="input-box"><label>小考 5</label><input type="number" class="quiz" value="0"></div>
+        <div class="input-box"><label>小考 6</label><input type="number" class="quiz" value="0"></div>
+    </div>
+
+    <div class="section-title">作業成績 (未交以0分計)</div>
+    <div class="input-group">
+        <div class="input-box"><label>作業 1</label><input type="number" id="hw1" value="0"></div>
+        <div class="input-box"><label>作業 2</label><input type="number" id="hw2" value="0"></div>
+    </div>
+
+    <div class="section-title">段考成績</div>
+    <div class="input-group">
+        <div class="input-box"><label>第一次段考</label><input type="number" id="exam1" value="0"></div>
+        <div class="input-box"><label>第二次段考</label><input type="number" id="exam2" value="0"></div>
+    </div>
+
+    <button onclick="calculatePhysics()">開始試算</button>
+
+    <div id="result" class="pass"></div>
+
+    <div class="notice">
+        <strong>💡 溫馨提示：</strong><br>
+        如果學生缺考次數超過一次，且缺考事由為重大事病假、公假、喪假等，請主動聯繫老師告知，以維護您的權益！
+    </div>
+</div>
+
+<div class="footer">
+    本網站由曾晧然老師透過 Gemini 設計
+</div>
+
+<script>
+    function calculatePhysics() {
+        let quizInputs = document.querySelectorAll('.quiz');
+        let quizScores = Array.from(quizInputs)
+                              .map(input => parseFloat(input.value) || 0)
+                              .sort((a, b) => b - a);
+
+        let topQuizzes = quizScores.slice(0, 5);
+        let quizAvg = topQuizzes.reduce((a, b) => a + b, 0) / 5;
+
+        let hw1 = parseFloat(document.getElementById('hw1').value) || 0;
+        let hw2 = parseFloat(document.getElementById('hw2').value) || 0;
+        let hwAvg = (hw1 + hw2) / 2;
+
+        let dailyScore = (quizAvg + hwAvg) / 2;
+
+        let ex1 = parseFloat(document.getElementById('exam1').value) || 0;
+        let ex2 = parseFloat(document.getElementById('exam2').value) || 0;
+        let examAvg = (ex1 + ex2) / 2;
+
+        // 公式：300 - 平時成績×0.2 - 定期評量×0.2
+        let target = 300 - (dailyScore * 0.2) - (examAvg * 0.2);
+        
+        let resultDiv = document.getElementById('result');
+        resultDiv.style.display = 'block';
+        
+        let message = `
+            ● 小考平均 (取最高5次): ${quizAvg.toFixed(1)} 分<br>
+            ● 作業平均: ${hwAvg.toFixed(1)} 分<br>
+            ● 平時成績總計: ${dailyScore.toFixed(1)} 分<br>
+            ● 前兩次段考平均: ${examAvg.toFixed(1)} 分<br>
+            <hr>
+            <strong>🎯 期末考需要考到：<span class="warning">${target.toFixed(1)}</span> 分才能 Pass</strong>
+        `;
+        
+        if (target > 100) {
+            message += `<br><span class="warning">⚠️ 提醒：目標超過 100 分，請務必與老師討論學習狀況！</span>`;
+        } else if (target <= 0) {
+            message += `<br><span style="color:green">✨ 恭喜：你目前的成績非常穩健！</span>`;
+        }
+
+        resultDiv.innerHTML = message;
+    }
+</script>
+
+</body>
+</html>
