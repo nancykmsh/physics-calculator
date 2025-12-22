@@ -86,9 +86,8 @@
         let ex2 = parseFloat(document.getElementById('exam2').value) || 0;
         let examAvg = (ex1 + ex2) / 2;
 
-        // 新公式：300 - (平時成績 × 5) - (定期評量 × 5)
-        // 這通常代表平時佔 20%，段考佔 20%，期末佔 60% 的邏輯
-        let target = 300 - (dailyScore * 5) - (examAvg * 5);
+        // 修正後的公式：300 - (平時成績 × 2) - (定期評量 × 2)
+        let target = 300 - (dailyScore * 2) - (examAvg * 2);
         
         let resultDiv = document.getElementById('result');
         resultDiv.style.display = 'block';
